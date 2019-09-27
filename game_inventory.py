@@ -1,65 +1,71 @@
+import os
+import sys
 
-# This is the file where you must work.
-# Write code in the functions (and create new functions) so that they work
-# according to the specification.
+inv = {'rope': 1, 'torch': 6, 'gold coin': 42, 'dagger': 1, 'arrow': 12}
+dragon_loot = ['gold coin', 'dagger', 'gold coin', 'gold coin', 'ruby']
 
+def display_inventory(inv):
+    for item in inv:
+        print("{}: {}".format(item, inv[item]))
 
-def display_inventory(inventory):
-    '''Display the inventory like this:
-    rope: 1
-    torch: 6
-    '''
-    pass
+def add_to_inventory(inv, added_items):
+    for item in added_items:
+        if item in inv:
+            inv[item] += 1
+        else:
+            inv[item] = 1
 
+def sortDictionary(inv, rev):
+    inv = sorted(inv.items(), key=lambda k: k[1], reverse=rev)
+    inv = dict(inv)
+    return inv
+            
+def print_table(inv, order = "empty"):
+    print("-----------------")
+    print("item name | count")
+    print("-----------------")
+    if order == "count,desc":
+        inv = sortDictionary(inv, 1)
+        for item in inv:
+            print("{:>9} | {:>5}".format(item, inv[item]))
+    elif order == "count,asc":
+        inv = sortDictionary(inv, 0)
+        for item in inv:
+            print("{:>9} | {:>5}".format(item, inv[item]))
+    elif order == "empty":
+        for item in inv:
+            print("{:>9} | {:>5}".format(item, inv[item]))
+    else:
+        print("Wrong argument!")
+    print("-----------------")
 
-def add_to_inventory(inventory, added_items):
-    '''Add to the inventory dictionary a list of items from added_items.'''
-    pass
+def import_inventory(inv, filename = "import_inventory.csv"):
+    try:
+        with open(os.path.join(sys.path[0], filename), "r", encoding="Utf-8") as f:
+            tmp = f.readline().split(",")
+            f.close()
+        add_to_inventory(inv, tmp)
+    except FileNotFoundError:
+        print("File {} not found!".format(filename))
 
+def export_inventory(inv, filename):
+    try:
+        with open(os.path.join(sys.path[0], filename), "w") as f:
+            tmp = []
+            for item in inv:
+            #tmp.append((item + ",") * inv[item])
+                for i in range(inv[item]):
+                    tmp.append(item)
+            #print(tmp)
+            #exit()
+            f.write(",".join(tmp))
+            f.close()
+    except PermissionError:
+        print("You don't have permission creating file {}!".format(filename))
 
-def print_table(inventory, order=None):
-    '''
-    Take your inventory and display it in a well-organized table with
-    each column right-justified like this:
-
-    -----------------
-    item name | count
-    -----------------
-         rope |     1
-        torch |     6
-    -----------------
-
-    The 'order' parameter (string) works as follows:
-    - None (by default) means the table is unordered
-    - "count,desc" means the table is ordered by count (of items in the
-      inventory) in descending order
-    - "count,asc" means the table is ordered by count in ascending order
-    '''
-
-    pass
-
-
-def import_inventory(inventory, filename="import_inventory.csv"):
-    '''
-    Import new inventory items from a file.
-
-    The filename comes as an argument, but by default it's
-    "import_inventory.csv". The import automatically merges items by name.
-
-    The file format is plain text with comma separated values (CSV).
-    '''
-
-    pass
-
-
-def export_inventory(inventory, filename="export_inventory.csv"):
-    '''
-    Export the inventory into a .csv file.
-
-    If the filename argument is None, it creates and overwrites a file
-    called "export_inventory.csv".
-
-    The file format is plain text with comma separated values (CSV).
-    '''
-
-    pass
+add_to_inventory(inv, dragon_loot)
+display_inventory(inv)
+print_table(inv, "count,desc")
+import_inventory(inv, "import_inventory.csv")
+print_table(inv, "count,desc")
+export_inventory(inv, "export_inventory.csv")
